@@ -1,8 +1,43 @@
-// Code auto-isi - boleh guna  
-function autoFill() {
-    document.querySelectorAll('[role="radiogroup"]').forEach(group => {
-        const radios = group.querySelectorAll('[role="radio"]');
-        if (radios[0]) radios[0].click();
+// Auto-isi semua field dengan data
+function completeFormFill() {
+    console.log('Filling all form fields...');
+    
+    // Isi semua text fields
+    const textInputs = document.querySelectorAll('input[type="text"], textarea');
+    textInputs.forEach((input, index) => {
+        input.value = `Answer ${index + 1}`;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
     });
+    
+    // Klik semua radio buttons (pilih option pertama setiap soalan)
+    const radioGroups = document.querySelectorAll('[role="radiogroup"]');
+    radioGroups.forEach(group => {
+        const radios = group.querySelectorAll('[role="radio"]');
+        if (radios.length > 0) {
+            radios[0].click();
+            // Trigger events
+            radios[0].dispatchEvent(new Event('click', { bubbles: true }));
+            radios[0].dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    });
+    
+    // Checkboxes - check pertama
+    document.querySelectorAll('[role="checkbox"]').forEach((checkbox, index) => {
+        if (index % 3 === 0) { // Check setiap third checkbox
+            checkbox.click();
+            checkbox.dispatchEvent(new Event('click', { bubbles: true }));
+        }
+    });
+    
+    console.log('Form filled! Now try to submit...');
+    
+    // Wait sebentar kemudian try submit
+    setTimeout(() => {
+        const submitBtn = document.querySelector('div[role="button"][jsname]');
+        if (submitBtn) {
+            submitBtn.click();
+        }
+    }, 1000);
 }
-autoFill();
+
+completeFormFill();
