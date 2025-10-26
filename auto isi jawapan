@@ -1,0 +1,8 @@
+// Code auto-isi - boleh guna  
+function autoFill() {
+    document.querySelectorAll('[role="radiogroup"]').forEach(group => {
+        const radios = group.querySelectorAll('[role="radio"]');
+        if (radios[0]) radios[0].click();
+    });
+}
+autoFill();
