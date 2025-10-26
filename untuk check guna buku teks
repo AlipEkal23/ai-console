@@ -1,0 +1,339 @@
+// CLEAN POPUP PROMPT GENERATOR - NO INNERHTML
+function createCleanPopupGenerator() {
+    console.log('📚 CREATING CLEAN POPUP GENERATOR...');
+    
+    const allQuestions = [];
+    document.querySelectorAll('[role="listitem"]').forEach((qElement, index) => {
+        const questionText = qElement.textContent || '';
+        const choices = [];
+        
+        let actualNumber = index + 1;
+        const numberMatch = questionText.match(/^(\d+)\./);
+        if (numberMatch) actualNumber = parseInt(numberMatch[1]);
+        
+        qElement.querySelectorAll('[role="radio"]').forEach(choice => {
+            choices.push(choice.textContent.trim());
+        });
+        
+        allQuestions.push({
+            displayNumber: index + 1,
+            actualNumber: actualNumber,
+            element: qElement,
+            text: questionText.trim(),
+            choices: choices
+        });
+    });
+    
+    // CREATE CLEAN MODAL - NO INNERHTML
+    function createCleanModal() {
+        // Remove existing modal
+        const existingModal = document.getElementById('cleanPromptModal');
+        if (existingModal) {
+            document.body.removeChild(existingModal);
+        }
+        
+        // Create modal backdrop
+        const modalBackdrop = document.createElement('div');
+        modalBackdrop.id = 'cleanPromptModal';
+        modalBackdrop.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100000;
+            font-family: Arial, sans-serif;
+        `;
+        
+        // Create modal content
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: white;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        `;
+        
+        // Modal header - NO INNERHTML
+        const modalHeader = document.createElement('div');
+        modalHeader.style.cssText = `
+            background: #2196F3;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        `;
+        
+        const headerTitle = document.createElement('div');
+        headerTitle.textContent = '📚 TEXTBOOK AI PROMPT';
+        headerTitle.style.fontSize = '20px';
+        headerTitle.style.fontWeight = 'bold';
+        modalHeader.appendChild(headerTitle);
+        
+        const closeButton = document.createElement('button');
+        closeButton.textContent = '✕';
+        closeButton.style.cssText = `
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+        `;
+        closeButton.onclick = () => document.body.removeChild(modalBackdrop);
+        modalHeader.appendChild(closeButton);
+        
+        modalContent.appendChild(modalHeader);
+        
+        // Instructions section - NO INNERHTML
+        const instructions = document.createElement('div');
+        instructions.style.cssText = `
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        `;
+        
+        const step1 = document.createElement('div');
+        step1.textContent = '1. Copy the prompt below';
+        step1.style.marginBottom = '5px';
+        instructions.appendChild(step1);
+        
+        const step2 = document.createElement('div');
+        step2.textContent = '2. Paste to ChatGPT-4 or Gemini';
+        step2.style.marginBottom = '5px';
+        instructions.appendChild(step2);
+        
+        const step3 = document.createElement('div');
+        step3.textContent = '3. AI will search textbooks for answers';
+        step3.style.marginBottom = '5px';
+        instructions.appendChild(step3);
+        
+        const step4 = document.createElement('div');
+        step4.textContent = '4. Get answers in format: 1.A 2.B 3.C ... 41.D';
+        instructions.appendChild(step4);
+        
+        modalContent.appendChild(instructions);
+        
+        // Textarea for prompt
+        const textareaContainer = document.createElement('div');
+        textareaContainer.style.cssText = `
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        `;
+        
+        const textareaLabel = document.createElement('div');
+        textareaLabel.textContent = '📋 COPY THIS PROMPT:';
+        textareaLabel.style.fontWeight = 'bold';
+        textareaLabel.style.marginBottom = '10px';
+        textareaLabel.style.color = '#333';
+        textareaContainer.appendChild(textareaLabel);
+        
+        const textarea = document.createElement('textarea');
+        textarea.id = 'cleanPromptTextarea';
+        textarea.style.cssText = `
+            width: 100%;
+            height: 300px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            resize: vertical;
+            background: #fafafa;
+        `;
+        
+        // Generate prompt content - NO INNERHTML
+        let promptContent = 'SEARCH MALAYSIAN HISTORY TEXTBOOKS FOR CORRECT ANSWERS:\n\n';
+        promptContent += 'TEXTBOOK LINKS:\n';
+        promptContent += '• Sejarah Tingkatan 4: https://anyflip.com/taxhh/rypg/\n';
+        promptContent += '• Sejarah Tingkatan 5: https://anyflip.com/taxhh/gonh/\n\n';
+        promptContent += 'ANSWER THESE 41 QUESTIONS BASED ON TEXTBOOK CONTENT:\n\n';
+        
+        allQuestions.forEach(q => {
+            promptContent += `QUESTION ${q.actualNumber}: ${q.text}\n`;
+            if (q.choices.length > 0) {
+                promptContent += 'CHOICES:\n';
+                q.choices.forEach((choice, idx) => {
+                    if (choice && choice.length > 0) {
+                        promptContent += `${String.fromCharCode(65 + idx)}. ${choice}\n`;
+                    }
+                });
+            }
+            promptContent += `SEARCH: "${q.text.split(' ').slice(0, 6).join(' ')} Sejarah Tingkatan 4 5"\n\n`;
+        });
+        
+        promptContent += 'INSTRUCTIONS:\n';
+        promptContent += '1. Use the textbook links provided\n';
+        promptContent += '2. Search for each question topic in the textbooks\n';
+        promptContent += '3. Find the correct answer based on official curriculum\n';
+        promptContent += '4. Return ONLY the answer format: 1.A 2.B 3.C 4.D ... 41.A\n';
+        promptContent += '5. Do not include any explanations or additional text\n\n';
+        promptContent += 'ANSWERS:';
+        
+        textarea.value = promptContent;
+        textareaContainer.appendChild(textarea);
+        
+        // Copy button
+        const copyButton = document.createElement('button');
+        copyButton.textContent = '📋 COPY PROMPT TO CLIPBOARD';
+        copyButton.style.cssText = `
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        `;
+        copyButton.onclick = () => {
+            textarea.select();
+            document.execCommand('copy');
+            
+            // Show copied message
+            copyButton.textContent = '✅ COPIED!';
+            copyButton.style.background = '#2196F3';
+            
+            setTimeout(() => {
+                copyButton.textContent = '📋 COPY PROMPT TO CLIPBOARD';
+                copyButton.style.background = '#4CAF50';
+            }, 2000);
+        };
+        textareaContainer.appendChild(copyButton);
+        
+        modalContent.appendChild(textareaContainer);
+        
+        // Footer - NO INNERHTML
+        const modalFooter = document.createElement('div');
+        modalFooter.style.cssText = `
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        `;
+        
+        const fillAnswersBtn = document.createElement('button');
+        fillAnswersBtn.textContent = '🎯 FILL ANSWERS';
+        fillAnswersBtn.style.cssText = `
+            background: #FF9800;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        `;
+        fillAnswersBtn.onclick = () => {
+            const answers = prompt('Paste answers from AI (format: 1.A 2.B 3.C ...):');
+            if (answers) {
+                fillCleanAnswers(answers);
+                document.body.removeChild(modalBackdrop);
+            }
+        };
+        modalFooter.appendChild(fillAnswersBtn);
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.textContent = 'CLOSE';
+        closeBtn.style.cssText = `
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        `;
+        closeBtn.onclick = () => document.body.removeChild(modalBackdrop);
+        modalFooter.appendChild(closeBtn);
+        
+        modalContent.appendChild(modalFooter);
+        modalBackdrop.appendChild(modalContent);
+        document.body.appendChild(modalBackdrop);
+        
+        // Auto-select text
+        setTimeout(() => {
+            textarea.select();
+        }, 100);
+    }
+    
+    // FILL ANSWERS FUNCTION
+    function fillCleanAnswers(answers) {
+        const answerMap = {};
+        const matches = answers.matchAll(/(\d+)\.\s*([A-D])/gi);
+        
+        for (const match of matches) {
+            answerMap[parseInt(match[1])] = match[2].toUpperCase();
+        }
+        
+        let filled = 0;
+        allQuestions.forEach(q => {
+            const answer = answerMap[q.actualNumber];
+            if (answer) {
+                const choiceIndex = answer.charCodeAt(0) - 65;
+                const radios = q.element.querySelectorAll('[role="radio"]');
+                if (radios[choiceIndex]) {
+                    radios[choiceIndex].click();
+                    filled++;
+                    q.element.style.border = '3px solid #4CAF50';
+                    q.element.style.background = '#f0fff0';
+                }
+            }
+        });
+        
+        console.log(`✅ ${filled}/41 textbook answers filled`);
+    }
+    
+    // CREATE SIMPLE FLOATING BUTTON
+    function createSimpleFloatingButton() {
+        const floatingBtn = document.createElement('button');
+        floatingBtn.textContent = '📚 GENERATE AI PROMPT';
+        floatingBtn.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.4);
+            z-index: 99999;
+        `;
+        
+        floatingBtn.onclick = createCleanModal;
+        document.body.appendChild(floatingBtn);
+        
+        console.log('✅ Clean floating button created!');
+    }
+    
+    // INITIALIZE CLEAN SYSTEM
+    createSimpleFloatingButton();
+    console.log('🎯 Clean Popup Generator Ready!');
+    console.log('💡 Click the blue button to generate AI prompt');
+}
+
+// START CLEAN SYSTEM
+console.log('🚀 Loading Clean Popup Generator...');
+setTimeout(createCleanPopupGenerator, 1000);
